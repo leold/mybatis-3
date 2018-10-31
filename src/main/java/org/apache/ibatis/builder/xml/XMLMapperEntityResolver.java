@@ -49,6 +49,9 @@ public class XMLMapperEntityResolver implements EntityResolver {
    * 
    * @throws org.xml.sax.SAXException If anything goes wrong
    */
+  /**
+   *  解析mybatis自己的dtd文件
+   */
   @Override
   public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
     try {

@@ -30,6 +30,11 @@ public class GenericTokenParser {
     this.handler = handler;
   }
 
+  /**
+   * 将属性的动态参数替换为实际的值 如${username}
+   * @param text xml字符串，可能包含动态参数
+   * @return 解析后的xml字符串
+   */
   public String parse(String text) {
     if (text == null || text.isEmpty()) {
       return "";

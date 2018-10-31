@@ -46,10 +46,19 @@ public class PropertyParser {
   private static final String ENABLE_DEFAULT_VALUE = "false";
   private static final String DEFAULT_VALUE_SEPARATOR = ":";
 
+  /**
+   * 静态工具类，禁止实例化
+   */
   private PropertyParser() {
     // Prevent Instantiation
   }
 
+  /**
+   * 解析某个属性的值
+   * @param string 属性名
+   * @param variables 属性对象
+   * @return 属性值
+   */
   public static String parse(String string, Properties variables) {
     VariableTokenHandler handler = new VariableTokenHandler(variables);
     GenericTokenParser parser = new GenericTokenParser("${", "}", handler);
@@ -57,8 +66,17 @@ public class PropertyParser {
   }
 
   private static class VariableTokenHandler implements TokenHandler {
+    /**
+     * 变量对象
+     */
     private final Properties variables;
+    /**
+     * 是否开启默认值。 默认不开启
+     */
     private final boolean enableDefaultValue;
+    /**
+     * 默认值的分隔符。 默认为 :
+     */
     private final String defaultValueSeparator;
 
     private VariableTokenHandler(Properties variables) {
@@ -73,24 +91,24 @@ public class PropertyParser {
 
     @Override
     public String handleToken(String content) {
-      if (variables != null) {
+      if (variables != null) {    //变量不为空
         String key = content;
-        if (enableDefaultValue) {
-          final int separatorIndex = content.indexOf(defaultValueSeparator);
+        if (enableDefaultValue) {   //允许默认值
+          final int separatorIndex = content.indexOf(defaultValueSeparator);   //获取分隔符的位置
           String defaultValue = null;
           if (separatorIndex >= 0) {
             key = content.substring(0, separatorIndex);
-            defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());
+            defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());    //获取默认值
           }
           if (defaultValue != null) {
-            return variables.getProperty(key, defaultValue);
+            return variables.getProperty(key, defaultValue);    //获取变量属性值，如果为空就返回默认值
           }
         }
-        if (variables.containsKey(key)) {
+        if (variables.containsKey(key)) {   //不允许默认值的处理逻辑
           return variables.getProperty(key);
         }
       }
-      return "${" + content + "}";
+      return "${" + content + "}";    //解析失败，则返回openToken + 变量名 + closeToken
     }
   }
 

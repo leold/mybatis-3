@@ -44,10 +44,15 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  //解析后的Document对象
   private final Document document;
+  //是否校验
   private boolean validation;
+  //XML实体解析器
   private EntityResolver entityResolver;
+  //变量properties属性
   private Properties variables;
+  //Java XPath对象
   private XPath xpath;
 
   public XPathParser(String xml) {
@@ -217,6 +222,13 @@ public class XPathParser {
     return new XNode(this, node, variables);
   }
 
+    /**
+     * 获取指定元素或节点的值
+     * @param expression 表达式
+     * @param root 指定节点
+     * @param returnType 返回类型
+     * @return 值
+     */
   private Object evaluate(String expression, Object root, QName returnType) {
     try {
       return xpath.evaluate(expression, root, returnType);
@@ -260,6 +272,12 @@ public class XPathParser {
     }
   }
 
+    /**
+     * 初始化XPathParser对象
+     * @param validation 是否验证xml
+     * @param variables 变量属性值
+     * @param entityResolver xml实体解析器
+     */
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
     this.validation = validation;
     this.entityResolver = entityResolver;
