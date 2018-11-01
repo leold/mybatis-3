@@ -46,15 +46,41 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  */
 public class Reflector {
 
+  /**
+   * 对应的类
+   */
   private final Class<?> type;
+  /**
+   * 可读属性名称
+   */
   private final String[] readablePropertyNames;
+  /**
+   * 可写属性名称
+   */
   private final String[] writeablePropertyNames;
+  /**
+   * setting方法映射
+   */
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  /**
+   * getting方法映射
+   */
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  /**
+   * setting方法参数类型映射
+   */
   private final Map<String, Class<?>> setTypes = new HashMap<>();
+  /**
+   * getting方法参数类型映射
+   */
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+  /**
+   * 默认构造方法
+   */
   private Constructor<?> defaultConstructor;
-
+  /**
+   * 属性集合(不区分大小写)
+   */
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
@@ -73,6 +99,10 @@ public class Reflector {
     }
   }
 
+  /**
+   * 获取默认的构造方法(无参构造方法)
+   * @param clazz 类
+   */
   private void addDefaultConstructor(Class<?> clazz) {
     Constructor<?>[] consts = clazz.getDeclaredConstructors();
     for (Constructor<?> constructor : consts) {
@@ -82,6 +112,10 @@ public class Reflector {
     }
   }
 
+  /**
+   * 解析当前类的所有属性的getter方法
+   * @param cls
+   */
   private void addGetMethods(Class<?> cls) {
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
     Method[] methods = getClassMethods(cls);
@@ -99,41 +133,53 @@ public class Reflector {
     resolveGetterConflicts(conflictingGetters);
   }
 
+  /**
+   * 解决冲突getter方法，每个属性只留下一个getter方法
+   * @param conflictingGetters
+   */
   private void resolveGetterConflicts(Map<String, List<Method>> conflictingGetters) {
+    //按属性循环
     for (Entry<String, List<Method>> entry : conflictingGetters.entrySet()) {
       Method winner = null;
       String propName = entry.getKey();
       for (Method candidate : entry.getValue()) {
-        if (winner == null) {
+        if (winner == null) {  //将每个属性的第一个方法作为哨兵
           winner = candidate;
           continue;
         }
         Class<?> winnerType = winner.getReturnType();
         Class<?> candidateType = candidate.getReturnType();
-        if (candidateType.equals(winnerType)) {
+        if (candidateType.equals(winnerType)) {     //返回类型相同
           if (!boolean.class.equals(candidateType)) {
+            //同一个属性的两个getter方法返回类型相同，可能存在getXX和isXX的情况，因此返回类型不是boolean则抛出异常
             throw new ReflectionException(
                 "Illegal overloaded getter method with ambiguous type for property "
                     + propName + " in class " + winner.getDeclaringClass()
                     + ". This breaks the JavaBeans specification and can cause unpredictable results.");
-          } else if (candidate.getName().startsWith("is")) {
+          } else if (candidate.getName().startsWith("is")) {    //isXX获胜
             winner = candidate;
           }
-        } else if (candidateType.isAssignableFrom(winnerType)) {
+        } else if (candidateType.isAssignableFrom(winnerType)) {  //当前返回类型是哨兵的父类或同类型，不需要变更哨兵
           // OK getter type is descendant
-        } else if (winnerType.isAssignableFrom(candidateType)) {
+        } else if (winnerType.isAssignableFrom(candidateType)) {  //当前返回类型是哨兵的子类，变更哨兵(选择最贴近的子类)
           winner = candidate;
-        } else {
+        } else {    //异常情况，getter方法命名有误，返回类型无法匹配
           throw new ReflectionException(
               "Illegal overloaded getter method with ambiguous type for property "
                   + propName + " in class " + winner.getDeclaringClass()
                   + ". This breaks the JavaBeans specification and can cause unpredictable results.");
         }
       }
+      //记录胜出的getter方法
       addGetMethod(propName, winner);
     }
   }
 
+  /**
+   * 将胜出的getter方法记录下来
+   * @param name 属性名
+   * @param method 胜出的getter方法
+   */
   private void addGetMethod(String name, Method method) {
     if (isValidPropertyName(name)) {
       getMethods.put(name, new MethodInvoker(method));
@@ -142,6 +188,10 @@ public class Reflector {
     }
   }
 
+  /**
+   * 解析当前类的所有属性的setter方法
+   * @param cls
+   */
   private void addSetMethods(Class<?> cls) {
     Map<String, List<Method>> conflictingSetters = new HashMap<>();
     Method[] methods = getClassMethods(cls);
@@ -157,11 +207,21 @@ public class Reflector {
     resolveSetterConflicts(conflictingSetters);
   }
 
+  /**
+   * 将属性的方法加入到Map中(包括方法名冲突的多个方法，用List表示)
+   * @param conflictingMethods 属性的所有方法(包括方法名冲突的方法)
+   * @param name 属性名称
+   * @param method 方法名
+   */
   private void addMethodConflict(Map<String, List<Method>> conflictingMethods, String name, Method method) {
     List<Method> list = conflictingMethods.computeIfAbsent(name, k -> new ArrayList<>());
     list.add(method);
   }
 
+  /**
+   * 解决setter方法冲突，每个属性留下一个setter方法
+   * @param conflictingSetters
+   */
   private void resolveSetterConflicts(Map<String, List<Method>> conflictingSetters) {
     for (String propName : conflictingSetters.keySet()) {
       List<Method> setters = conflictingSetters.get(propName);
@@ -169,8 +229,8 @@ public class Reflector {
       Method match = null;
       ReflectionException exception = null;
       for (Method setter : setters) {
-        Class<?> paramType = setter.getParameterTypes()[0];
-        if (paramType.equals(getterType)) {
+        Class<?> paramType = setter.getParameterTypes()[0];   //获取setter方法的第一个参数类型
+        if (paramType.equals(getterType)) {     //如果第一个参数类型与getter方法返回参数类型一致，则认为匹配到对应的setter方法
           // should be the best match
           match = setter;
           break;
@@ -193,8 +253,15 @@ public class Reflector {
     }
   }
 
+  /**
+   * 匹配更好的setter方法，尽可能选取更加具体的类
+   * @param setter1
+   * @param setter2
+   * @param property
+   * @return
+   */
   private Method pickBetterSetter(Method setter1, Method setter2, String property) {
-    if (setter1 == null) {
+    if (setter1 == null) {  //setter1位空则直接返回setter2，应用于第一次循环
       return setter2;
     }
     Class<?> paramType1 = setter1.getParameterTypes()[0];
@@ -209,6 +276,11 @@ public class Reflector {
         + paramType2.getName() + "'.");
   }
 
+  /**
+   * 记录胜出的setter方法
+   * @param name 属性名
+   * @param method 胜出的setter方法
+   */
   private void addSetMethod(String name, Method method) {
     if (isValidPropertyName(name)) {
       setMethods.put(name, new MethodInvoker(method));
@@ -217,21 +289,30 @@ public class Reflector {
     }
   }
 
+  /**
+   * Type转换为Class
+   * @param src
+   * @return
+   */
   private Class<?> typeToClass(Type src) {
     Class<?> result = null;
     if (src instanceof Class) {
+      //普通类型，直接使用类
       result = (Class<?>) src;
     } else if (src instanceof ParameterizedType) {
+      //泛型，使用泛型
       result = (Class<?>) ((ParameterizedType) src).getRawType();
     } else if (src instanceof GenericArrayType) {
+      //泛型数组，获取具体的类
       Type componentType = ((GenericArrayType) src).getGenericComponentType();
-      if (componentType instanceof Class) {
+      if (componentType instanceof Class) { //普通类型
         result = Array.newInstance((Class<?>) componentType, 0).getClass();
       } else {
-        Class<?> componentClass = typeToClass(componentType);
+        Class<?> componentClass = typeToClass(componentType);   //递归
         result = Array.newInstance((Class<?>) componentClass, 0).getClass();
       }
     }
+    //都不符合则返回Object
     if (result == null) {
       result = Object.class;
     }
@@ -247,6 +328,8 @@ public class Reflector {
         // pr #16 - final static can only be set by the classloader
         int modifiers = field.getModifiers();
         if (!(Modifier.isFinal(modifiers) && Modifier.isStatic(modifiers))) {
+          //过滤同时被final和static修饰的域，这种域只能被类加载器赋值
+          //但不过滤final修饰的域，因为JDK1.5允许反射修改final域
           addSetField(field);
         }
       }
@@ -255,6 +338,7 @@ public class Reflector {
       }
     }
     if (clazz.getSuperclass() != null) {
+      //如果父类不为空，则再扫描父类
       addFields(clazz.getSuperclass());
     }
   }
@@ -275,6 +359,11 @@ public class Reflector {
     }
   }
 
+  /**
+   * 校验属性名是否有效
+   * @param name
+   * @return
+   */
   private boolean isValidPropertyName(String name) {
     return !(name.startsWith("$") || "serialVersionUID".equals(name) || "class".equals(name));
   }
@@ -323,6 +412,12 @@ public class Reflector {
     }
   }
 
+  /**
+   * 组装方法签名
+   * 签名格式为 ： 返回类型#方法名:入参类型1:入参类型2:...:入参类型N
+   * @param method
+   * @return
+   */
   private String getSignature(Method method) {
     StringBuilder sb = new StringBuilder();
     Class<?> returnType = method.getReturnType();
