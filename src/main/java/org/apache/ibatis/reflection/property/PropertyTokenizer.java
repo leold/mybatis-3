@@ -18,15 +18,35 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
+ * 属性分词器，支持迭代
+ * example ： "order[0].item[key].price"
+ *        name : order
+ *       index : 0
+ *   indexName : order[0]
+ *    children : item[key].price
+ *
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+  /**
+   * 当前字符串
+   */
   private String name;
+  /**
+   * 当前索引名
+   */
   private final String indexedName;
+  /**
+   * 当前索引编号 123或key
+   */
   private String index;
+  /**
+   * 剩余字符串
+   */
   private final String children;
 
   public PropertyTokenizer(String fullname) {
+    //按.分隔字符串，之前为name，之后为children
     int delim = fullname.indexOf('.');
     if (delim > -1) {
       name = fullname.substring(0, delim);

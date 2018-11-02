@@ -28,9 +28,16 @@ public final class PropertyCopier {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 将sourceBean的属性，复制到destinationBean中（同类型深拷贝）
+   * @param type 指定的类
+   * @param sourceBean 源
+   * @param destinationBean 目标
+   */
   public static void copyBeanProperties(Class<?> type, Object sourceBean, Object destinationBean) {
     Class<?> parent = type;
     while (parent != null) {
+      //循环父类，深拷贝
       final Field[] fields = parent.getDeclaredFields();
       for(Field field : fields) {
         try {

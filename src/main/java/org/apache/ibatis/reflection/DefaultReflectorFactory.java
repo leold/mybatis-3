@@ -18,8 +18,17 @@ package org.apache.ibatis.reflection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * 默认的Reflector工厂实现
+ */
 public class DefaultReflectorFactory implements ReflectorFactory {
+  /**
+   * 默认缓存Reflector
+   */
   private boolean classCacheEnabled = true;
+  /**
+   * 用ConcurrentHashMap缓存Reflector对象
+   */
   private final ConcurrentMap<Class<?>, Reflector> reflectorMap = new ConcurrentHashMap<>();
 
   public DefaultReflectorFactory() {
@@ -35,6 +44,11 @@ public class DefaultReflectorFactory implements ReflectorFactory {
     this.classCacheEnabled = classCacheEnabled;
   }
 
+  /**
+   * 允许缓存则先在ReflectorMap中查找，否则直接新建一个Reflector对象
+   * @param type
+   * @return
+   */
   @Override
   public Reflector findForClass(Class<?> type) {
     if (classCacheEnabled) {

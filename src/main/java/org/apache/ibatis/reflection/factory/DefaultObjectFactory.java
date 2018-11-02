@@ -60,11 +60,13 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     try {
       Constructor<T> constructor;
       if (constructorArgTypes == null || constructorArgs == null) {
+        //如果没有入参，使用默认的无参构造方法
         constructor = type.getDeclaredConstructor();
         try {
           return constructor.newInstance();
         } catch (IllegalAccessException e) {
           if (Reflector.canControlMemberAccessible()) {
+            //修改构造方法的访问权限，再次实例化
             constructor.setAccessible(true);
             return constructor.newInstance();
           } else {
@@ -72,6 +74,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
           }
         }
       }
+      //使用特定的构造方法实例化对象
       constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
       try {
         return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
@@ -104,6 +107,11 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     }
   }
 
+  /**
+   * 解析需要创建的类型，主要是做各种集合类的过滤和转换
+   * @param type
+   * @return
+   */
   protected Class<?> resolveInterface(Class<?> type) {
     Class<?> classToCreate;
     if (type == List.class || type == Collection.class || type == Iterable.class) {
@@ -120,6 +128,12 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     return classToCreate;
   }
 
+  /**
+   * 判断type是否是Collection的子类
+   * @param type Object type
+   * @param <T>
+   * @return
+   */
   @Override
   public <T> boolean isCollection(Class<T> type) {
     return Collection.class.isAssignableFrom(type);

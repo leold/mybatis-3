@@ -50,14 +50,29 @@ public final class PropertyNamer {
     return name;
   }
 
+  /**
+   * 判断是否get、set、is方法
+   * @param name
+   * @return
+   */
   public static boolean isProperty(String name) {
     return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
   }
 
+  /**
+   * 判断是否get、is方法
+   * @param name
+   * @return
+   */
   public static boolean isGetter(String name) {
     return name.startsWith("get") || name.startsWith("is");
   }
 
+  /**
+   * 判断是否set方法
+   * @param name
+   * @return
+   */
   public static boolean isSetter(String name) {
     return name.startsWith("set");
   }
