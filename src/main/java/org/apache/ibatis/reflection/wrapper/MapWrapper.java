@@ -29,6 +29,9 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public class MapWrapper extends BaseWrapper {
 
+  /**
+   * 与BeanWrapper基本相同，Object变成了Map<String, Object>
+   */
   private final Map<String, Object> map;
 
   public MapWrapper(MetaObject metaObject, Map<String, Object> map) {

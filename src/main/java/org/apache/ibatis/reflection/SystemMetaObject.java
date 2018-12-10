@@ -23,6 +23,10 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * 提供ObjectFactory\ObjectWrapperFactory\空MetaObject的单例
+ */
 public final class SystemMetaObject {
 
   public static final ObjectFactory DEFAULT_OBJECT_FACTORY = new DefaultObjectFactory();

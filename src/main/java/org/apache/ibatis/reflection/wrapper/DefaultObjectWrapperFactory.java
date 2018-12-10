@@ -21,6 +21,10 @@ import org.apache.ibatis.reflection.ReflectionException;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * 空的实现类
+ */
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory {
 
   @Override

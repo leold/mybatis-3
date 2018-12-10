@@ -153,4 +153,12 @@ public class MetaClassTest {
     assertEquals("richField", meta.findProperty("RICHfield"));
   }
 
+  @Test
+  public void testGetGetterType() {
+    ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+    MetaClass metaClass = MetaClass.forClass(RichType.class, reflectorFactory);
+    Class clazz = metaClass.getGetterType("richType");
+    System.out.println("class = " + clazz);
+  }
+
 }

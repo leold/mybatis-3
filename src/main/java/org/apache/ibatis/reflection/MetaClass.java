@@ -27,6 +27,7 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 类的元数据，提供各种对类的操作
  * @author Clinton Begin
  */
 public class MetaClass {
@@ -34,15 +35,31 @@ public class MetaClass {
   private final ReflectorFactory reflectorFactory;
   private final Reflector reflector;
 
+  /**
+   * 构造方法，需要一个类和一个ReflectorFactory
+   * @param type
+   * @param reflectorFactory
+   */
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
     this.reflectorFactory = reflectorFactory;
     this.reflector = reflectorFactory.findForClass(type);
   }
 
+  /**
+   * 静态工厂方法，同构造方法
+   * @param type
+   * @param reflectorFactory
+   * @return
+   */
   public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
     return new MetaClass(type, reflectorFactory);
   }
 
+  /**
+   * 创建类的指定属性的类型的MetaClass对象
+   * @param name
+   * @return
+   */
   public MetaClass metaClassForProperty(String name) {
     Class<?> propType = reflector.getGetterType(name);
     return MetaClass.forClass(propType, reflectorFactory);
@@ -68,6 +85,11 @@ public class MetaClass {
     return reflector.getSetablePropertyNames();
   }
 
+  /**
+   * 递归寻找最下级属性的setterType
+   * @param name
+   * @return
+   */
   public Class<?> getSetterType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -78,6 +100,11 @@ public class MetaClass {
     }
   }
 
+  /**
+   * 递归寻找最下级属性的getterType
+   * @param name
+   * @return
+   */
   public Class<?> getGetterType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -93,12 +120,20 @@ public class MetaClass {
     return MetaClass.forClass(propType, reflectorFactory);
   }
 
+  /**
+   * 获取getter的返回类型，包含对集合的判断
+   * @param prop
+   * @return
+   */
   private Class<?> getGetterType(PropertyTokenizer prop) {
     Class<?> type = reflector.getGetterType(prop.getName());
     if (prop.getIndex() != null && Collection.class.isAssignableFrom(type)) {
+      //如果prop是数组中的某个元素，则先获取其泛型， 如list[0].field，此处获取的是list的type
       Type returnType = getGenericGetterType(prop.getName());
       if (returnType instanceof ParameterizedType) {
+        //list是泛型，解析数组中某个元素的真正类型
         Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
+        //actualTypeArguments = [T]  (Collection<T>)
         if (actualTypeArguments != null && actualTypeArguments.length == 1) {
           returnType = actualTypeArguments[0];
           if (returnType instanceof Class) {
@@ -131,6 +166,11 @@ public class MetaClass {
     return null;
   }
 
+  /**
+   * 递归到最下层
+   * @param name
+   * @return
+   */
   public boolean hasSetter(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -145,6 +185,11 @@ public class MetaClass {
     }
   }
 
+  /**
+   * 递归到最下层
+   * @param name
+   * @return
+   */
   public boolean hasGetter(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -167,6 +212,12 @@ public class MetaClass {
     return reflector.getSetInvoker(name);
   }
 
+  /**
+   * 使用属性分词器，将属性名称及其子属性名称连接在一起
+   * @param name
+   * @param builder
+   * @return
+   */
   private StringBuilder buildProperty(String name, StringBuilder builder) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {

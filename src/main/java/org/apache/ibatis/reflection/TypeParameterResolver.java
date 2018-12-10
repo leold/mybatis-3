@@ -28,6 +28,10 @@ import java.util.Arrays;
 /**
  * @author Iwao AVE!
  */
+
+/**
+ * type解析器
+ */
 public class TypeParameterResolver {
 
   /**

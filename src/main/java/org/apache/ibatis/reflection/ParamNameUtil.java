@@ -22,6 +22,9 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 参数名工具类，获取某个方法的参数列表
+ */
 public class ParamNameUtil {
   public static List<String> getParamNames(Method method) {
     return getParameterNames(method);

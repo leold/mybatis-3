@@ -30,6 +30,10 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * 对象元数据
+ */
 public class MetaObject {
 
   private final Object originalObject;
@@ -57,6 +61,14 @@ public class MetaObject {
     }
   }
 
+  /**
+   * 静态构造方法
+   * @param object
+   * @param objectFactory
+   * @param objectWrapperFactory
+   * @param reflectorFactory
+   * @return
+   */
   public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
     if (object == null) {
       return SystemMetaObject.NULL_META_OBJECT;
@@ -141,6 +153,11 @@ public class MetaObject {
     }
   }
 
+  /**
+   * 创建指定属性的metaObject对象
+   * @param name
+   * @return
+   */
   public MetaObject metaObjectForProperty(String name) {
     Object value = getValue(name);
     return MetaObject.forObject(value, objectFactory, objectWrapperFactory, reflectorFactory);

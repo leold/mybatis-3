@@ -27,6 +27,9 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public class CollectionWrapper implements ObjectWrapper {
 
+  /**
+   * 定义集合，仅支持add和addAll
+   */
   private final Collection<Object> object;
 
   public CollectionWrapper(MetaObject metaObject, Collection<Object> object) {

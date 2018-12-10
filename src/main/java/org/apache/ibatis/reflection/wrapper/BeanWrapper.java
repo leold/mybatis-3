@@ -43,9 +43,11 @@ public class BeanWrapper extends BaseWrapper {
   @Override
   public Object get(PropertyTokenizer prop) {
     if (prop.getIndex() != null) {
+      //集合，使用BaseWrapper的方法
       Object collection = resolveCollection(prop, object);
       return getCollectionValue(prop, collection);
     } else {
+      //属性，使用getInvoker
       return getBeanProperty(prop, object);
     }
   }
@@ -53,9 +55,11 @@ public class BeanWrapper extends BaseWrapper {
   @Override
   public void set(PropertyTokenizer prop, Object value) {
     if (prop.getIndex() != null) {
+      //集合，使用BaseWrapper的方法
       Object collection = resolveCollection(prop, object);
       setCollectionValue(prop, collection, value);
     } else {
+      //属性，使用setInvoker
       setBeanProperty(prop, object, value);
     }
   }
@@ -186,16 +190,29 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 不是集合
+   * @return
+   */
   @Override
   public boolean isCollection() {
     return false;
   }
 
+  /**
+   * 不支持add
+   * @param element
+   */
   @Override
   public void add(Object element) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * 不支持addAll
+   * @param list
+   * @param <E>
+   */
   @Override
   public <E> void addAll(List<E> list) {
     throw new UnsupportedOperationException();
