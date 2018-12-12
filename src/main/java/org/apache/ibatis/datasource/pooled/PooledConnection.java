@@ -25,6 +25,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * @author Clinton Begin
+ * 池化的Connection对象，对Connection做封装，包含代理连接、真实连接、检出时间、创建时间、上次使用时间、是否可用等属性
  */
 class PooledConnection implements InvocationHandler {
 
@@ -233,15 +234,18 @@ class PooledConnection implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     String methodName = method.getName();
     if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
+      //方法是close，将当前连接放回连接池
       dataSource.pushConnection(this);
       return null;
     } else {
       try {
+        // TODO 如果是非Object的方法，则先检查连接是否可用
         if (!Object.class.equals(method.getDeclaringClass())) {
           // issue #579 toString() should never fail
           // throw an SQLException instead of a Runtime
           checkConnection();
         }
+        //反射调用对应方法
         return method.invoke(realConnection, args);
       } catch (Throwable t) {
         throw ExceptionUtil.unwrapThrowable(t);

@@ -20,20 +20,32 @@ import java.util.List;
 
 /**
  * @author Clinton Begin
+ *
+ * 连接池状态，记录激活和空闲的连接集合，并维护相关的状态和计数器
  */
 public class PoolState {
 
   protected PooledDataSource dataSource;
 
+  //当前空闲连接集合
   protected final List<PooledConnection> idleConnections = new ArrayList<>();
+  //当前活动连接集合
   protected final List<PooledConnection> activeConnections = new ArrayList<>();
+  //当前连接池被成功请求连接的次数
   protected long requestCount = 0;
+  //当前连接池被成功请求连接所累计花费的时间
   protected long accumulatedRequestTime = 0;
+  //当前连接池checkout连接累计花费的时间
   protected long accumulatedCheckoutTime = 0;
+  //当前连接池checkout连接超时的连接数
   protected long claimedOverdueConnectionCount = 0;
+  //当前连接池checkout连接超时累计花费的时间
   protected long accumulatedCheckoutTimeOfOverdueConnections = 0;
+  //当前连接池请求连接时累计的等待时间(当前没有空闲连接、活动连接数达到配置的最大连接数、当前不存在checkout超时的连接)
   protected long accumulatedWaitTime = 0;
+  //当前连接池请求连接时累计的等待次数
   protected long hadToWaitCount = 0;
+  //当前连接池的坏连接数
   protected long badConnectionCount = 0;
 
   public PoolState(PooledDataSource dataSource) {

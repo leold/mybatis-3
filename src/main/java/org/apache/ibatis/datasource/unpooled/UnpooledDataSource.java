@@ -36,7 +36,8 @@ import org.apache.ibatis.io.Resources;
  * @author Eduardo Macarron
  */
 public class UnpooledDataSource implements DataSource {
-  
+
+  //不为空则指定driver的类加载器
   private ClassLoader driverClassLoader;
   private Properties driverProperties;
   private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<>();
@@ -196,6 +197,15 @@ public class UnpooledDataSource implements DataSource {
     return doGetConnection(props);
   }
 
+  /**
+   * 获取数据库连接
+   * 1、初始化数据库驱动（如果registeredDrivers里不存在）
+   * 2、获取数据库连接
+   * 3、配置连接（是否自动提交，数据库事务隔离等级）
+   * @param properties
+   * @return
+   * @throws SQLException
+   */
   private Connection doGetConnection(Properties properties) throws SQLException {
     initializeDriver();
     Connection connection = DriverManager.getConnection(url, properties);
@@ -203,6 +213,11 @@ public class UnpooledDataSource implements DataSource {
     return connection;
   }
 
+  /**
+   * 初始化数据库驱动
+   * 如果registeredDrivers不存在，则寻找对应的类加载器实例化数据库驱动类，并将其加入registeredDrivers
+   * @throws SQLException
+   */
   private synchronized void initializeDriver() throws SQLException {
     if (!registeredDrivers.containsKey(driver)) {
       Class<?> driverType;
@@ -223,6 +238,11 @@ public class UnpooledDataSource implements DataSource {
     }
   }
 
+  /**
+   * 配置自动提交和默认数据库事务隔离等级
+   * @param conn
+   * @throws SQLException
+   */
   private void configureConnection(Connection conn) throws SQLException {
     if (autoCommit != null && autoCommit != conn.getAutoCommit()) {
       conn.setAutoCommit(autoCommit);
@@ -232,6 +252,9 @@ public class UnpooledDataSource implements DataSource {
     }
   }
 
+  /**
+   * 定义了一个Driver代理，方便自定义logger，其他方法都是沿用原Driver的方法
+   */
   private static class DriverProxy implements Driver {
     private Driver driver;
 
@@ -270,6 +293,11 @@ public class UnpooledDataSource implements DataSource {
     }
 
     // @Override only valid jdk7+
+
+    /**
+     * mybatis支持使用自定义的logger对象
+     * @return
+     */
     public Logger getParentLogger() {
       return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     }
