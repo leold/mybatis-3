@@ -34,6 +34,8 @@ import org.apache.ibatis.transaction.TransactionException;
  * @author Clinton Begin
  *
  * @see JdbcTransactionFactory
+ *
+ * 实现Transaction接口，基于JDBC的事务实现
  */
 public class JdbcTransaction implements Transaction {
 
@@ -110,6 +112,9 @@ public class JdbcTransaction implements Transaction {
     }
   }
 
+  /**
+   * 将autoCommit设置为true
+   */
   protected void resetAutoCommit() {
     try {
       if (!connection.getAutoCommit()) {

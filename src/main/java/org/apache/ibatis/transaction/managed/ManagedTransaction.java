@@ -33,6 +33,8 @@ import org.apache.ibatis.transaction.Transaction;
  * @author Clinton Begin
  *
  * @see ManagedTransactionFactory
+ *
+ * 基于容器管理的事务实现，少了autoCommit属性，commit和rollback为空，委托给容器进行管理
  */
 public class ManagedTransaction implements Transaction {
 
