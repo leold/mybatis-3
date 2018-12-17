@@ -28,6 +28,8 @@ import org.apache.ibatis.cache.Cache;
  * Thanks to Dr. Heinz Kabutz for his guidance here.
  * 
  * @author Clinton Begin
+ *
+ * 同SoftCache，此处使用的是弱引用
  */
 public class WeakCache implements Cache {
   private final Deque<Object> hardLinksToAvoidGarbageCollection;

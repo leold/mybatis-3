@@ -23,11 +23,14 @@ import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
  * @author Clinton Begin
+ * 封装的Key，重写了hashcode及对应的校验
+ * 支持克隆和序列化
  */
 public class CacheKey implements Cloneable, Serializable {
 
   private static final long serialVersionUID = 1146682552656046210L;
 
+  //一个空的cacheKey，不支持update操作
   public static final CacheKey NULL_CACHE_KEY = new NullCacheKey();
 
   private static final int DEFAULT_MULTIPLYER = 37;

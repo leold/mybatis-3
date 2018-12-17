@@ -31,6 +31,7 @@ import org.apache.ibatis.io.Resources;
 
 /**
  * @author Clinton Begin
+ * 支持序列化和反序列化的cache
  */
 public class SerializedCache implements Cache {
 
@@ -90,6 +91,11 @@ public class SerializedCache implements Cache {
     return delegate.equals(obj);
   }
 
+  /**
+   * 序列化
+   * @param value
+   * @return
+   */
   private byte[] serialize(Serializable value) {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
          ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -101,6 +107,11 @@ public class SerializedCache implements Cache {
     }
   }
 
+  /**
+   * 反序列化
+   * @param value
+   * @return
+   */
   private Serializable deserialize(byte[] value) {
     Serializable result;
     try (ByteArrayInputStream bis = new ByteArrayInputStream(value);

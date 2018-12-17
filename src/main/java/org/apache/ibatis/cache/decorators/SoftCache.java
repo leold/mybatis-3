@@ -28,11 +28,16 @@ import org.apache.ibatis.cache.Cache;
  * Thanks to Dr. Heinz Kabutz for his guidance here.
  *
  * @author Clinton Begin
+ *
+ * 利用GC对软引用的回收机制封装而成的cache
  */
 public class SoftCache implements Cache {
+  //强引用的键的队列，将key放入Collection，避免被GC回收
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+  //可能被GC回收的weakEntries
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
   private final Cache delegate;
+  //强引用队列的大小
   private int numberOfHardLinks;
 
   public SoftCache(Cache delegate) {
@@ -58,12 +63,21 @@ public class SoftCache implements Cache {
     this.numberOfHardLinks = size;
   }
 
+  /**
+   * 先删除软引用队列中所有标记的key，然后将当前元素放入cache，并放入软引用
+   */
   @Override
   public void putObject(Object key, Object value) {
     removeGarbageCollectedItems();
     delegate.putObject(key, new SoftEntry(key, value, queueOfGarbageCollectedEntries));
   }
 
+  /**
+   * 先获取软引用的key队列，如果对应的引用已经被GC回收，则在cache中删除对应的key并返回null
+   * 如果对应的引用不为空，则将对应的引用放入强引用队列；如果强引用队列满，则将队尾元素出队列
+   * @param key The key
+   * @return
+   */
   @Override
   public Object getObject(Object key) {
     Object result = null;
@@ -106,6 +120,9 @@ public class SoftCache implements Cache {
     return null;
   }
 
+  /**
+   * 删除cache中所有软引用队列的key
+   */
   private void removeGarbageCollectedItems() {
     SoftEntry sv;
     while ((sv = (SoftEntry) queueOfGarbageCollectedEntries.poll()) != null) {
@@ -113,6 +130,9 @@ public class SoftCache implements Cache {
     }
   }
 
+  /**
+   * 在软引用的基础上封装了一层，加了一个参数key，用来标记cache中哪些key被jvm放入了软引用
+   */
   private static class SoftEntry extends SoftReference<Object> {
     private final Object key;
 

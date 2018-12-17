@@ -48,9 +48,16 @@ public class LruCache implements Cache {
   }
 
   public void setSize(final int size) {
+    //LinkedHashMap的一个构造方法，当accessOrder为true的时候，元素会按照访问顺序排序，最近访问的元素会放在最前面
     keyMap = new LinkedHashMap<Object, Object>(size, .75F, true) {
       private static final long serialVersionUID = 4267176411845948333L;
 
+      /**
+       * LinkedHashMap自带了一个删除最老元素的方法，默认返回false，即不删除最老元素
+       * 这里重写该方法，当HashMap的size大于设置的size(默认1024)时删除最老元素
+       * @param eldest
+       * @return
+       */
       @Override
       protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
         boolean tooBig = size() > size;

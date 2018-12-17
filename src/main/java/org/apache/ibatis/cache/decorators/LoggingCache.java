@@ -23,6 +23,8 @@ import org.apache.ibatis.logging.LogFactory;
 
 /**
  * @author Clinton Begin
+ *
+ * 支持log的cache，关于cache的操作是委托给别的cache实现类来完成的
  */
 public class LoggingCache implements Cache {
 

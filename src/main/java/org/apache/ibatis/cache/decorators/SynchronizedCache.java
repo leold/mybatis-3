@@ -21,6 +21,8 @@ import org.apache.ibatis.cache.Cache;
 
 /**
  * @author Clinton Begin
+ *
+ * 同步cache，在各个操作方法前加上了synchronized关键字，简单粗暴
  */
 public class SynchronizedCache implements Cache {
 

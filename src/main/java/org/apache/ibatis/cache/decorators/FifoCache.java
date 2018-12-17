@@ -23,6 +23,7 @@ import org.apache.ibatis.cache.Cache;
 
 /**
  * FIFO (first in, first out) cache decorator
+ * 先进先出的缓存队列，队列默认长度1024
  *
  * @author Clinton Begin
  */
@@ -79,6 +80,10 @@ public class FifoCache implements Cache {
     return null;
   }
 
+  /**
+   * 在队列尾部放入key，如果队列已满，则将队首元素出队
+   * @param key
+   */
   private void cycleKeyList(Object key) {
     keyList.addLast(key);
     if (keyList.size() > size) {

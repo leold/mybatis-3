@@ -41,8 +41,11 @@ public class TransactionalCache implements Cache {
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
   private final Cache delegate;
+  //是否提交即清空
   private boolean clearOnCommit;
+  //将要提交或回滚的entries
   private final Map<Object, Object> entriesToAddOnCommit;
+  //未命中key集合
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
@@ -98,6 +101,11 @@ public class TransactionalCache implements Cache {
     entriesToAddOnCommit.clear();
   }
 
+  /**
+   * 事务提交操作
+   * 将待提交或回滚的entries放入cache，未命中的key也放入cache(value为null)
+   * 然后重置该session
+   */
   public void commit() {
     if (clearOnCommit) {
       delegate.clear();
@@ -106,6 +114,10 @@ public class TransactionalCache implements Cache {
     reset();
   }
 
+  /**
+   * 事务回滚操作
+   * 将本事务中未命中的key从cache中清除，然后重置该session
+   */
   public void rollback() {
     unlockMissedEntries();
     reset();
@@ -118,9 +130,11 @@ public class TransactionalCache implements Cache {
   }
 
   private void flushPendingEntries() {
+    //将待提交或回滚的entries放入cache
     for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
       delegate.putObject(entry.getKey(), entry.getValue());
     }
+    //如果待提交或回滚的entries中不包含未命中的key，则将该key也放入cache(value是null)
     for (Object entry : entriesMissedInCache) {
       if (!entriesToAddOnCommit.containsKey(entry)) {
         delegate.putObject(entry, null);
@@ -129,6 +143,7 @@ public class TransactionalCache implements Cache {
   }
 
   private void unlockMissedEntries() {
+    //将未命中的key从cache中移除
     for (Object entry : entriesMissedInCache) {
       try {
         delegate.removeObject(entry);

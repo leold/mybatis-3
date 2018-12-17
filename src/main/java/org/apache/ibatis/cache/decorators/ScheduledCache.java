@@ -21,6 +21,7 @@ import org.apache.ibatis.cache.Cache;
 
 /**
  * @author Clinton Begin
+ * 本地定时清理的cache
  */
 public class ScheduledCache implements Cache {
 
@@ -87,6 +88,10 @@ public class ScheduledCache implements Cache {
     return delegate.equals(obj);
   }
 
+  /**
+   * 当前时间戳-上次清理时间>清理时间间隔的时候，清理cache
+   * @return
+   */
   private boolean clearWhenStale() {
     if (System.currentTimeMillis() - lastClear > clearInterval) {
       clear();
