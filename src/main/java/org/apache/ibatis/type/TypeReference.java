@@ -24,6 +24,8 @@ import java.lang.reflect.Type;
  * @param <T> the referenced type
  * @since 3.1.0
  * @author Simone Tripodi
+ *
+ * 解析泛型
  */
 public abstract class TypeReference<T> {
 

@@ -22,6 +22,8 @@ import java.sql.SQLException;
 
 /**
  * @author Clinton Begin
+ *
+ * 枚举类的转换
  */
 public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
@@ -39,6 +41,7 @@ public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
     if (jdbcType == null) {
       ps.setString(i, parameter.name());
     } else {
+      // Enum -> String
       ps.setObject(i, parameter.name(), jdbcType.TYPE_CODE); // see r3589
     }
   }
@@ -46,6 +49,7 @@ public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
   @Override
   public E getNullableResult(ResultSet rs, String columnName) throws SQLException {
     String s = rs.getString(columnName);
+    // String -> Enum
     return s == null ? null : Enum.valueOf(type, s);
   }
 

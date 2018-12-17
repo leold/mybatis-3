@@ -24,6 +24,8 @@ import java.util.Date;
 
 /**
  * @author Clinton Begin
+ *
+ * Date和TimeStamp的转换
  */
 public class DateTypeHandler extends BaseTypeHandler<Date> {
 
