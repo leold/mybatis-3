@@ -23,6 +23,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Clinton Begin
+ *
+ * 对应<ResultMap></>
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -23,6 +23,9 @@ import java.lang.annotation.Target;
 
 /**
  * @author Clinton Begin
+ *
+ * 用在返回值为map的方法上，可以将返回的list转换为key值为对象某一属性的map
+ * value ：指定的属性名
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -26,21 +26,24 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
  * @author Clinton Begin
+ *
+ * 映射查询结果
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
 public @interface Result {
+  //是否主键
   boolean id() default false;
-
+  //数据库字段
   String column() default "";
-
+  //Java属性
   String property() default "";
-
+  //Java属性类型
   Class<?> javaType() default void.class;
-
+  //数据库字段Jdbc类型
   JdbcType jdbcType() default JdbcType.UNDEFINED;
-
+  //适用的TypeHandler
   Class<? extends TypeHandler> typeHandler() default UnknownTypeHandler.class;
 
   One one() default @One;

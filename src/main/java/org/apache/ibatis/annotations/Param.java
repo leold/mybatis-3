@@ -23,6 +23,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Clinton Begin
+ *
+ * 多个形参时，指定参数名称
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
