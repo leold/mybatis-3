@@ -50,12 +50,18 @@ import org.apache.ibatis.io.Resources;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ *
+ * TypeHandler管理容器，用于获取对应的TypeHandler
  */
 public final class TypeHandlerRegistry {
 
+  //存放JdbcType对应的TypeHandler
   private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<>(JdbcType.class);
+  //存放JavaType对应的TypeHandler
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new ConcurrentHashMap<>();
+  //未知TypeHandler
   private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
+  //所有的TypeHandler集合
   private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<>();
 
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
@@ -213,6 +219,13 @@ public final class TypeHandlerRegistry {
     return getTypeHandler(javaTypeReference.getRawType(), jdbcType);
   }
 
+  /**
+   * 根据JavaType和JdbcType获取一个TypeHandler
+   * @param type
+   * @param jdbcType
+   * @param <T>
+   * @return
+   */
   @SuppressWarnings("unchecked")
   private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
     if (ParamMap.class.equals(type)) {
@@ -419,6 +432,13 @@ public final class TypeHandlerRegistry {
 
   // Construct a handler (used also from Builders)
 
+  /**
+   * 用反射的方式实例化一个TypeHandler对象
+   * @param javaTypeClass
+   * @param typeHandlerClass
+   * @param <T>
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getInstance(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
     if (javaTypeClass != null) {

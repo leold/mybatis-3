@@ -17,6 +17,7 @@ package org.apache.ibatis.type;
 
 /**
  * @author Clinton Begin
+ * Byte数组的装箱、拆箱工具
  */
 class ByteArrayUtils {
 

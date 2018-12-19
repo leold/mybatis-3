@@ -34,6 +34,8 @@ import org.apache.ibatis.io.Resources;
 
 /**
  * @author Clinton Begin
+ *
+ * 类名与别名的注册表，Xml中的resultType和ParameterType可以通过它来使用别名，而不用全类名
  */
 public class TypeAliasRegistry {
 
@@ -100,6 +102,12 @@ public class TypeAliasRegistry {
     registerAlias("ResultSet", ResultSet.class);
   }
 
+  /**
+   * 通过别名(或全类名)解析对应的类
+   * @param string
+   * @param <T>
+   * @return
+   */
   @SuppressWarnings("unchecked")
   // throws class cast exception as well if types cannot be assigned
   public <T> Class<T> resolveAlias(String string) {
