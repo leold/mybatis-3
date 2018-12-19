@@ -32,6 +32,7 @@ public class Slf4jImpl implements Log {
   public Slf4jImpl(String clazz) {
     Logger logger = LoggerFactory.getLogger(clazz);
 
+    //适配SLF4J的不同版本，创建不同的Log实现类对象
     if (logger instanceof LocationAwareLogger) {
       try {
         // check for slf4j >= 1.6 method signature
