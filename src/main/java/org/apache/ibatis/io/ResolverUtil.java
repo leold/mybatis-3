@@ -169,6 +169,8 @@ public class ResolverUtil<T> {
    *
    * @param parent the class of interface to find subclasses or implementations of
    * @param packageNames one or more package names to scan (including subpackages) for classes
+   *
+   * 获取指定目录下（们）继承于parent类的子类（们）
    */
   public ResolverUtil<T> findImplementations(Class<?> parent, String... packageNames) {
     if (packageNames == null) {
@@ -189,6 +191,8 @@ public class ResolverUtil<T> {
    *
    * @param annotation the annotation that should be present on matching classes
    * @param packageNames one or more package names to scan (including subpackages) for classes
+   *
+   * 获取指定目录下（们）拥有annotation注解的类（们）
    */
   public ResolverUtil<T> findAnnotated(Class<? extends Annotation> annotation, String... packageNames) {
     if (packageNames == null) {
@@ -214,6 +218,7 @@ public class ResolverUtil<T> {
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
   public ResolverUtil<T> find(Test test, String packageName) {
+    //获取指定包的文件路径(把.换成/)
     String path = getPackagePath(packageName);
 
     try {
@@ -250,6 +255,7 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+      //获取全类型名，去除扩展名
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
       ClassLoader loader = getClassLoader();
       if (log.isDebugEnabled()) {
