@@ -45,6 +45,10 @@ public abstract class VFS {
   private static class VFSHolder {
     static final VFS INSTANCE = createVFS();
 
+    /**
+     * 实例化VFS的实现类，直到发现一个可用的实现类
+     * @return
+     */
     @SuppressWarnings("unchecked")
     static VFS createVFS() {
       // Try the user implementations first, then the built-ins

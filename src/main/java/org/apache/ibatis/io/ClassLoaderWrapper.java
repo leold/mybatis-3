@@ -107,6 +107,8 @@ public class ClassLoaderWrapper {
    * @param resource    - the resource to get
    * @param classLoader - the classloaders to examine
    * @return the resource or null
+   *
+   * 使用类加载器数组依次获取资源的InputStream，找到即返回
    */
   InputStream getResourceAsStream(String resource, ClassLoader[] classLoader) {
     for (ClassLoader cl : classLoader) {
@@ -134,6 +136,8 @@ public class ClassLoaderWrapper {
    * @param resource    - the resource to locate
    * @param classLoader - the class loaders to examine
    * @return the resource or null
+   *
+   * 使用类加载器数组依次获取资源的URL，找到即返回
    */
   URL getResourceAsURL(String resource, ClassLoader[] classLoader) {
 
@@ -174,6 +178,8 @@ public class ClassLoaderWrapper {
    * @param classLoader - the group of classloaders to examine
    * @return the class
    * @throws ClassNotFoundException - Remember the wisdom of Judge Smails: Well, the world needs ditch diggers, too.
+   *
+   * 使用类加载器数组依次寻找类，找到即返回
    */
   Class<?> classForName(String name, ClassLoader[] classLoader) throws ClassNotFoundException {
 
@@ -201,6 +207,12 @@ public class ClassLoaderWrapper {
 
   }
 
+  /**
+   * 获取类加载器的数据
+   * 顺序：指定classLoader > defaultClassLoader > 本地线程上下文的ClassLoader > 当前类的ClassLoader > 系统ClassLoader
+   * @param classLoader
+   * @return
+   */
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
     return new ClassLoader[]{
         classLoader,
