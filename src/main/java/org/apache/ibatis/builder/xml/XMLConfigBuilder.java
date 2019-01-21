@@ -100,6 +100,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     return configuration;
   }
 
+  /**
+   * 解析mybatis-config下的configuration节点
+   * @param root
+   */
   private void parseConfiguration(XNode root) {
     try {
       //issue #117 read properties first
@@ -129,6 +133,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     Properties props = context.getChildrenAsProperties();
     // Check that all settings are known to the configuration class
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
+    //校验每个属性，没有setter方法则抛出异常
     for (Object key : props.keySet()) {
       if (!metaConfig.hasSetter(String.valueOf(key))) {
         throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
@@ -138,13 +143,16 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   private void loadCustomVfs(Properties props) throws ClassNotFoundException {
+    //获取vfsImpl属性
     String value = props.getProperty("vfsImpl");
     if (value != null) {
+      //切割字符串为数组，获取各个实现类
       String[] clazzes = value.split(",");
       for (String clazz : clazzes) {
         if (!clazz.isEmpty()) {
           @SuppressWarnings("unchecked")
           Class<? extends VFS> vfsImpl = (Class<? extends VFS>)Resources.classForName(clazz);
+          //在configuration中添加自定义的Vfs实现类
           configuration.setVfsImpl(vfsImpl);
         }
       }
@@ -156,8 +164,10 @@ public class XMLConfigBuilder extends BaseBuilder {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
           String typeAliasPackage = child.getStringAttribute("name");
+          //指定为包，注册包下的每个类
           configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
         } else {
+          //指定为类，直接注册类和别名
           String alias = child.getStringAttribute("alias");
           String type = child.getStringAttribute("type");
           try {
@@ -180,8 +190,10 @@ public class XMLConfigBuilder extends BaseBuilder {
       for (XNode child : parent.getChildren()) {
         String interceptor = child.getStringAttribute("interceptor");
         Properties properties = child.getChildrenAsProperties();
+        //创建Interceptor实例，并设置属性
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
         interceptorInstance.setProperties(properties);
+        //将Interceptor对象加入configuration的拦截器链表中
         configuration.addInterceptor(interceptorInstance);
       }
     }
@@ -189,16 +201,21 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void objectFactoryElement(XNode context) throws Exception {
     if (context != null) {
+      //获取ObjectFactory的实现类
       String type = context.getStringAttribute("type");
+      //获取属性
       Properties properties = context.getChildrenAsProperties();
+      //实例化ObjectFactory实现类并设置属性
       ObjectFactory factory = (ObjectFactory) resolveClass(type).newInstance();
       factory.setProperties(properties);
+      //为configuration设置ObjectFactory实现类
       configuration.setObjectFactory(factory);
     }
   }
 
   private void objectWrapperFactoryElement(XNode context) throws Exception {
     if (context != null) {
+      //获取并实例化ObjectWrapperFactory对象，并设置configuration
       String type = context.getStringAttribute("type");
       ObjectWrapperFactory factory = (ObjectWrapperFactory) resolveClass(type).newInstance();
       configuration.setObjectWrapperFactory(factory);
@@ -218,6 +235,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       Properties defaults = context.getChildrenAsProperties();
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
+      //不能同时制定resource（本地）和url（远程）
       if (resource != null && url != null) {
         throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
       }
@@ -227,9 +245,11 @@ public class XMLConfigBuilder extends BaseBuilder {
         defaults.putAll(Resources.getUrlAsProperties(url));
       }
       Properties vars = configuration.getVariables();
+      //将configuration中的属性覆盖到defaults中
       if (vars != null) {
         defaults.putAll(vars);
       }
+      //将defaults置入parser和configuration
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
     }
